@@ -41,8 +41,10 @@ class custom_df:
 
         self.lgn = lambda m, a, mc, s: a * np.exp(-(np.log10(m) - \
                                        np.log10(mc))**2.0 / (2*s**2.0))
+
         self.pwr = lambda m, a, s: a*m**(-s)
-        self.p = [0.093, 0.2, 0.55, 0.043, 1.35]
+
+        self.p = [0.093, 0.2, 0.55, 0.0415, 1.35]
 
     def df(self,x):
 
@@ -106,10 +108,11 @@ INPUT.add_argument('b', metavar='b', type=float,
 #
 #   USER PARAMETER INPUT
 #     OPTIONAL PARAMETERS:
-#       plot     = True or False
-#       logspace = True or False
-#       output   = True or False
-#       verbose  = True or False
+#       plot         = True or False
+#       logspace     = True or False
+#       output       = True or False
+#       verbose      = True or False
+#       exploratory  = True or False
 #
 
 INPUT.add_argument('-np', '--no-plot', dest='noplot', action='store_false',
@@ -123,6 +126,9 @@ INPUT.add_argument('-o', '--output', dest='output', action='store_true',
 
 INPUT.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                    help='Tells you more information during run')
+
+INPUT.add_argument('-ex', '--exploratory', dest='explore', action='store_true',
+                   help='No sampling - plots distribution for exploration')
 
 OPTS = INPUT.parse_args()
 
@@ -160,11 +166,38 @@ else:
 
 #
 #   Assigns my_pdf to custom_pdf object
-#       box_roof : decides the extent of the dependent axis of the sample box
-#
+# 
 
 my_df = custom_df()
-box_roof = np.max(my_df.df(X)) * 1.1
+
+#
+#   
+#
+
+if OPTS.explore:
+
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("Matplotlib not installed, try - pip install matplotlib")
+        import sys
+        sys.exit()
+
+    plt.figure()
+    plt.plot(X, my_df.df(X), 'k')
+
+    if OPTS.logspace:
+
+        plt.xscale('log')
+
+    plt.show()
+
+else:
+
+#
+#   box_roof sets the limit of the box function to sample from.
+#
+    box_roof = np.max(my_df.df(X)) * 1.1
 
 #
 #   Rejection sampling loop:
@@ -177,33 +210,40 @@ box_roof = np.max(my_df.df(X)) * 1.1
 #                   and failed, F.
 #
 
-N = 10**4
-P = 0
-F = 0
-df_sample = np.empty(N)
-tl_sample = np.array([])
-while P < N:
-    T = 10**np.random.uniform(OPTS.a[0], OPTS.b[0])
-    tl_sample = np.append(tl_sample, T)
-    U = np.random.uniform(0, 1)
-    if (U*box_roof) <= my_df.sample(T):
-        df_sample[P] = T
-        P += 1
-    else:
-        F += 1
+    N = 10**4
+    P = 0
+    F = 0
+    df_sample = np.empty(N)
+    tl_sample = np.array([])
 
-if OPTS.verbose:
-    print("PASS/FAIL RATE              : %.3f" %(P/F))
+    while P < N:
+
+        T = 10**np.random.uniform(OPTS.a[0], OPTS.b[0])
+        tl_sample = np.append(tl_sample, T)
+        U = np.random.uniform(0, 1)
+
+        if (U*box_roof) <= my_df.sample(T):
+
+            df_sample[P] = T
+            P += 1
+        
+        else:
+
+            F += 1
+
+    if OPTS.verbose:
+
+        print("PASS/FAIL RATE              : %.3f" %(P/F))
 
 #
 #   CHECK IF OUTPUT WRITE IS TRUE
 #
 
-if OPTS.output:
+    if OPTS.output:
 
-    print("\nWriting DCF output file to: rejection_output.csv")
-    np.savetxt('rejection_output.csv', df_sample, fmt="%.6f", \
-                delimiter=',')
+        print("\nWriting DCF output file to: rejection_output.csv")
+        np.savetxt('rejection_output.csv', df_sample, fmt="%.6f", \
+                    delimiter=',')
 
 #
 #   PLOT RESULTS
@@ -213,32 +253,32 @@ if OPTS.output:
 #   Requires python module matplotlib.
 #
 
-if OPTS.noplot:
+    if OPTS.noplot:
 
-    try:
-        import matplotlib.pyplot as plt
-    except ImportError:
-        print("Matplotlib not installed, try - pip install matplotlib")
-        import sys
-        sys.exit()
+        try:
+            import matplotlib.pyplot as plt
+        except ImportError:
+            print("Matplotlib not installed, try - pip install matplotlib")
+            import sys
+            sys.exit()
 
-    plt.figure(0)
+        plt.figure(0)
 
-    if OPTS.logspace:
-        plt.hist(np.log10(df_sample), bins=150, range=(OPTS.a[0], OPTS.b[0]), \
-                 histtype='step', color='r')
-        plt.hist(np.log10(tl_sample), bins=150, range=(OPTS.a[0], OPTS.b[0]), \
-                 histtype='step', color='k')
-        plt.xlabel("Log(x)")
-    else:
-        plt.hist(df_sample, bins=150, range=(OPTS.a[0], OPTS.b[0]), \
-                 histtype='step', color='r')
-        plt.hist(tl_sample, bins=150, range=(OPTS.a[0], OPTS.b[0]), \
-                 histtype='step', color='k')
-        plt.xlabel("x")
+        if OPTS.logspace:
+            plt.hist(np.log10(df_sample), bins=150, \
+                     range=(OPTS.a[0], OPTS.b[0]), histtype='step', color='r')
+            plt.hist(np.log10(tl_sample), bins=150, \
+                     range=(OPTS.a[0], OPTS.b[0]), histtype='step', color='k')
+            plt.xlabel("Log(x)")
+        else:
+            plt.hist(df_sample, bins=150, range=(OPTS.a[0], OPTS.b[0]), \
+                     histtype='step', color='r')
+            plt.hist(tl_sample, bins=150, range=(OPTS.a[0], OPTS.b[0]), \
+                     histtype='step', color='k')
+            plt.xlabel("x")
 
-    plt.ylabel("N")
-    plt.show()
+        plt.ylabel("N")
+        plt.show()
 
 #
 #   END
