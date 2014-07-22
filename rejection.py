@@ -6,7 +6,8 @@
       $ python rejection.py -h for help and basic instruction
 
 '''
-from __future__ import print_function
+
+from __future__ import print_function, division
 
 print(__doc__)
 
@@ -24,7 +25,7 @@ except ImportError:
 class custom_df:
 
     '''
-        Custom_df class defines the custom distribution function from 
+        Custom_df class defines the custom distribution function from
         the user.
 
             __init__ : Define the piecewise components of the distribution
@@ -32,7 +33,7 @@ class custom_df:
 
             df       : Distribution function - accepts a n-length vector only.
 
-            sample   : Sample the distribution function - accepts a single 
+            sample   : Sample the distribution function - accepts a single
                        float only.
 
     '''
@@ -50,7 +51,7 @@ class custom_df:
 
         assert((isinstance(x, float) != True)), \
             "Distribution not found - passed values are a float - use .sample"
-        
+
         #
         # Define your custom distribution here that accepts a vector.
         #
@@ -66,7 +67,7 @@ class custom_df:
 
         assert(isinstance(x, float)), \
             "Sample not taken - passed values are a tuple - use .df"
-        
+
         #
         # Define how to sample the distribution given a single value
         #
@@ -100,9 +101,9 @@ INPUT = argparse.ArgumentParser(description='rejection.py user parameters')
 #       b   = upper limit of distribution
 #
 
-INPUT.add_argument('a', metavar='a', type=float, 
+INPUT.add_argument('a', metavar='a', type=float,
                     nargs=1, help='lower limit of distribution')
-INPUT.add_argument('b', metavar='b', type=float, 
+INPUT.add_argument('b', metavar='b', type=float,
                     nargs=1, help='upper limit of distribution')
 
 #
@@ -122,7 +123,7 @@ INPUT.add_argument('-lg', '--logspace', dest='logspace', action='store_true',
                    help='Independent axis in evenly sampled in logspace')
 
 INPUT.add_argument('-o', '--output', dest='output', action='store_true',
-                   help='Write output file')
+                   help='Write .csv output file')
 
 INPUT.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                    help='Tells you more information during run')
@@ -147,6 +148,7 @@ if OPTS.verbose:
     print("INPUT DISTRIBUTION LIMIT a) :", OPTS.a[0])
     print("INPUT DISTRIBUTION LIMIT b) :", OPTS.b[0])
     print("LOGSPACE                    :", OPTS.logspace)
+    print("EXPLORATORY                 :", OPTS.explore)
 
 #
 #   Main rejection sampling loop
@@ -158,7 +160,7 @@ if OPTS.verbose:
 
 if OPTS.logspace:
 
-    X = np.logspace(OPTS.a[0], OPTS.b[0], 1000) 
+    X = np.logspace(OPTS.a[0], OPTS.b[0], 1000)
 
 else:
 
@@ -166,12 +168,12 @@ else:
 
 #
 #   Assigns my_pdf to custom_pdf object
-# 
+#
 
 my_df = custom_df()
 
 #
-#   
+#
 #
 
 if OPTS.explore:
@@ -189,6 +191,14 @@ if OPTS.explore:
     if OPTS.logspace:
 
         plt.xscale('log')
+        plt.xlabel('Log(x)')
+        plt.xlim(10**OPTS.a[0], 10**OPTS.b[0])
+
+    else:
+
+        plt.xscale('linear')
+        plt.xlabel('x')
+        plt.xlim(OPTS.a[0], OPTS.b[0])
 
     plt.show()
 
@@ -204,7 +214,7 @@ else:
 #       N : decided how many samples to pull from 'my_pdf'
 #       P : are the random pulls that pass the rejection criteria
 #       F : are the ranfom pulls that fail the rejection criteria
-#       df_sample : is the array of random samples that have passed, P, the 
+#       df_sample : is the array of random samples that have passed, P, the
 #                   selection criteria.
 #       tl_sample : is the array of all random samples that have passed, P,
 #                   and failed, F.
@@ -226,7 +236,7 @@ else:
 
             df_sample[P] = T
             P += 1
-        
+
         else:
 
             F += 1
@@ -265,18 +275,22 @@ else:
         plt.figure(0)
 
         if OPTS.logspace:
+
             plt.hist(np.log10(df_sample), bins=150, \
                      range=(OPTS.a[0], OPTS.b[0]), histtype='step', color='r')
             plt.hist(np.log10(tl_sample), bins=150, \
                      range=(OPTS.a[0], OPTS.b[0]), histtype='step', color='k')
             plt.xlabel("Log(x)")
+
         else:
+
             plt.hist(df_sample, bins=150, range=(OPTS.a[0], OPTS.b[0]), \
                      histtype='step', color='r')
             plt.hist(tl_sample, bins=150, range=(OPTS.a[0], OPTS.b[0]), \
                      histtype='step', color='k')
             plt.xlabel("x")
 
+        plt.xlim(OPTS.a[0], OPTS.b[0])
         plt.ylabel("N")
         plt.show()
 
