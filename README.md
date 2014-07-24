@@ -58,6 +58,6 @@ This looks easier and more efficient to sample. Now we can create a randomly dra
 $ python rejection.py -1.09 1 -lg -o
 `
 
-This command displays a histogram of the sampled distribution (red) along with sample space (black) and also writes a file with 10000 random points to 'rejection_output.csv' in the current directory.
+This command displays a histogram of the sampled distribution (red) along with the sample space (black) and also writes a file with 10000 randomly drawn points to 'rejection_output.csv' in the current directory.
 
 ![Sampled IMF](images/imf_sample.png)
