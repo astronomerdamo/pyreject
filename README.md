@@ -1,8 +1,8 @@
-#rejection.py : Rejection Sampling for Custom Distributions
+#pyREJECT [![Build Status](https://travis-ci.org/astronomerdamo/pyreject.svg)](https://travis-ci.org/astronomerdamo/pyreject)
 
 ##Requirements
 
-* > Python 2.6 or > Python 3.0
+* Python 2.6, 3.3, 3.4 
 * Numpy
 * Matplotlib
 
