@@ -19,6 +19,6 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib
   - source activate test-environment
 script:
-  - python python rejection.py -1.09 1 -lg -np
+  - python rejection.py -1.09 1 -lg -np
 notifications: 
   email: false
