@@ -1,8 +1,10 @@
 #pyREJECT [![Build Status](https://travis-ci.org/astronomerdamo/pyreject.svg)](https://travis-ci.org/astronomerdamo/pyreject)
 
+A Python rejection sampling and distribution tool.
+
 ##Requirements
 
-* Python 2.6, 3.3, 3.4 
+* Python 2.7, 3.3, 3.4 
 * Numpy
 * Matplotlib
 
