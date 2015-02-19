@@ -1,6 +1,6 @@
 #pyREJECT [![Build Status](https://travis-ci.org/astronomerdamo/pyreject.svg)](https://travis-ci.org/astronomerdamo/pyreject)
 
-A Python rejection sampling and distribution tool.
+A Python command line rejection sampling and distribution tool.
 
 ##Requirements
 
